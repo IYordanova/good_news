@@ -23,13 +23,9 @@ class SentimentAnalyzer:
         client = language_v1.LanguageServiceClient()
         document = {
             "gcs_content_uri": gcs_content_uri,
-            "type_": language_v1.Document.Type.PLAIN_TEXT,
-            "language": "en"
+            "type": language_v1.types.Document.Type.PLAIN_TEXT
         }
-        response = client.analyze_sentiment(request={
-            'document': document,
-            'encoding_type': language_v1.EncodingType.UTF8
-        })
+        response = client.analyze_sentiment(document=document)
 
         logging.info(u"Document {} sentiment score: {}, magnitude: {}".format(
             gcs_content_uri,
@@ -46,4 +42,6 @@ class SentimentAnalyzer:
             os.path.join('articles', source_name, f'{datetime.now():%Y-%m-%d}')
         )
         scored_files = map(lambda f: (f, self.__analyze_file_sentiment(f'gs://{bucket_name}/{f}')), files_to_analyze)
-        return map(lambda ft: ft[0], sorted(list(scored_files), key=lambda x: (x[1][0], x[1][1]))[:3])
+        top_3 = map(lambda ft: ft[0], sorted(list(scored_files), key=lambda x: (x[1][0], x[1][1]))[:3])
+        logging.info(top_3)
+        return top_3
