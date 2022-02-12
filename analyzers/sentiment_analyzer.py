@@ -15,11 +15,6 @@ class SentimentAnalyzer:
         return map(lambda b: b.name, blobs)
 
     def __analyze_file_sentiment(self, gcs_content_uri):
-        """
-          gcs_content_uri Google Cloud Storage URI where the file content is located.
-          e.g. gs://[Your Bucket]/[Path to File]
-        """
-
         client = language_v1.LanguageServiceClient()
         document = {
             "gcs_content_uri": gcs_content_uri,
