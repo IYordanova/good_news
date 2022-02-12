@@ -28,7 +28,7 @@ class SentimentAnalyzer:
             response.document_sentiment.magnitude
         ))
 
-        return response.document_sentiment.score, response.document_sentiment.magnitude
+        return response.document_sentiment
 
     def analyze(self, source_name):
         bucket_name = os.getenv('ARCHIVE_BUCKET')
@@ -37,6 +37,7 @@ class SentimentAnalyzer:
             os.path.join('articles', source_name, f'{datetime.now():%Y-%m-%d}')
         )
         scored_files = map(lambda f: (f, self.__analyze_file_sentiment(f'gs://{bucket_name}/{f}')), files_to_analyze)
-        top_3 = map(lambda ft: ft[0], sorted(list(scored_files), key=lambda x: (x[1][0], x[1][1]))[:3])
-        logging.info(top_3)
+        sorted_scored_files = sorted(list(scored_files), key=lambda x: (x[1].score, x[1].magnitude), reverse=True)
+        top_3 = list(map(lambda f: f[0], sorted_scored_files[:3]))
+        logging.info('\n'.join(top_3))
         return top_3
