@@ -12,8 +12,9 @@ class FileWriter:
         gcp_client = storage.Client()
         bucket = gcp_client.bucket(bucket_name)
         blob = bucket.blob(prefix)
-        with blob.open("w") as f:
-            f.write(content)
+        blob.upload_from_string(content)
+        # with blob.open("w") as f:
+        #     f.write(content)
         metadata = {'link': link}
         blob.metadata = metadata
         blob.patch()

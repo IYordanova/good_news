@@ -5,6 +5,7 @@ import traceback
 import logging
 import datetime
 
+from airflow import models
 from airflow.operators.python_operator import PythonOperator
 
 from scrapers.associated_press import AssociatedPress, name as ap_name

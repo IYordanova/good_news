@@ -46,4 +46,4 @@ class SentimentAnalyzer:
             os.path.join('articles', source_name, f'{datetime.now():%Y-%m-%d}')
         )
         scored_files = map(lambda f: (f, self.__analyze_file_sentiment(f'gs://{bucket_name}/{f}')), files_to_analyze)
-        return map(lambda ft: ft[0], sorted(list(scored_files), key=lambda x: (x[1][0], x[1][1]))[:5])
+        return map(lambda ft: ft[0], sorted(list(scored_files), key=lambda x: (x[1][0], x[1][1]))[:3])
