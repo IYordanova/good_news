@@ -17,10 +17,11 @@ class FileWriter:
         blob.metadata = metadata
         blob.patch()
 
-    def __write_locally(self, filename, content):
+    def __write_locally(self, filename, content, link):
         local_file = open(filename, 'w')
         local_file.write(content)
         local_file.close()
+        print(link)
 
     def write_to_file(self, article, source_name):
         sink_folder = os.path.join('articles', source_name, f'{datetime.now():%Y-%m-%d}')
@@ -29,7 +30,7 @@ class FileWriter:
         try:
             if os.getenv('ENVIRONMENT') == 'local':
                 logging.info(f'Writing file {filename} to {filename}')
-                self.__write_locally(filename, article.content)
+                self.__write_locally(filename, article.content, article.link)
             else:
                 bucket_name = os.getenv('ARCHIVE_BUCKET')
                 logging.info(f'Writing file {filename} to {os.path.join(bucket_name, filename)}')
