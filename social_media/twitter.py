@@ -18,6 +18,7 @@ class Twitter:
         bucket_name = os.getenv("ARCHIVE_BUCKET")
 
         tweet = '\n'.join(map(lambda f: self.__get_links(bucket_name, f), files_to_post))
+        tweet = 'The best of today:\n' + tweet
 
         auth = tweepy.OAuthHandler(
             consumer_key=os.getenv("CONSUMER_KEY"),
