@@ -18,7 +18,7 @@ class TheGuardian:
         r1 = requests.get(f'{self.base_url}/{category}')
         if r1.status_code != 200:
             logging.error(f'Response from {name} was {r1.status_code}')
-            return
+            return []
 
         bs_content = BeautifulSoup(r1.content, 'html5lib')
         news = bs_content.find_all('h3', class_='fc-item__title')
@@ -34,6 +34,7 @@ class TheGuardian:
             for news_item in news:
                 try:
                     link = news_item.find('a')['href']
+                    # ignore external or links to main page
                     if link in already_scraped_links:
                         continue
                     already_scraped_links.add(link)
@@ -41,7 +42,6 @@ class TheGuardian:
                     title = news_item.get_text()
                     logging.info(f'title: {title}, link:{link}')
 
-                    # Reading the content (it is divided in paragraphs)
                     article_response = requests.get(link)
                     if article_response.status_code != 200:
                         logging.error(f'Response from {name} was {article_response.status_code}')

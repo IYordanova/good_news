@@ -48,7 +48,8 @@ with models.DAG(
         source_name = op_kwargs['source_name']
         try:
             start = time.time()
-            SentimentAnalyzer().analyze(source_name)
+            top3 = SentimentAnalyzer().analyze(source_name)
+            op_kwargs['ti'].xcom_push(key='top3', value=top3)
             end = time.time()
             logging.info(f'Analyzed files for {source_name} in {end - start} seconds')
         except:
@@ -57,10 +58,14 @@ with models.DAG(
 
     def post_results(**op_kwargs):
         task_ids = op_kwargs['taskIds']
+        logging.info(task_ids)
+        logging.info('attempting to pull top 3 from ' + ''.join(task_ids))
         try:
-            scored_files = op_kwargs['ti'].xcom_pull(task_ids=task_ids)
-            Twitter().post(scored_files)
-            logging.info(f'Posted final to social media')
+            all_scored_files = op_kwargs['ti'].xcom_pull(task_ids=task_ids, key='top3')
+            logging.info(all_scored_files)
+            flat_list = [file for task_files in all_scored_files for file in task_files]
+            logging.info('attempting to post ' + ''.join(flat_list))
+            Twitter().post(flat_list)
         except:
             logging.error(traceback.format_exc())
 

@@ -31,7 +31,7 @@ class AssociatedPress:
         r1 = requests.get(f'{self.base_url}/{category}')
         if r1.status_code != 200:
             logging.error(f'Response from {name} was {r1.status_code}')
-            return
+            return []
 
         bs_content = BeautifulSoup(r1.content, 'html5lib')
         all_links = bs_content.find_all(['a'])
@@ -48,7 +48,6 @@ class AssociatedPress:
             for news_item in news:
                 try:
                     link = news_item['href']
-
                     # ignore external or links to main page
                     if link.startswith('http'):
                         continue
@@ -61,7 +60,6 @@ class AssociatedPress:
                     title = news_item.find('h3').get_text()
                     logging.info(f'title: {title}, link: {link}')
 
-                    # Reading the content (it is divided in paragraphs)
                     article_response = requests.get(f'{link}')
                     if article_response.status_code != 200:
                         logging.error(f'Response from {name} was {article_response.status_code}')

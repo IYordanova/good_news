@@ -17,11 +17,9 @@ class Bbc:
         r1 = requests.get(f'{self.base_url}/{category}')
         if r1.status_code != 200:
             logging.error(f'Response from {name} was {r1.status_code}')
-            return
+            return []
 
-        page_content = r1.content
-        bs_content = BeautifulSoup(page_content, 'html5lib')
-
+        bs_content = BeautifulSoup(r1.content, 'html5lib')
         news = bs_content.find_all('div', class_='gs-c-promo-body')
         logging.info(f'Found {len(news)} elements matching article`s class')
         return news
@@ -35,7 +33,6 @@ class Bbc:
             for news_item in news:
                 try:
                     link = news_item.find('a')['href']
-
                     # ignore external or links to main page
                     if link.startswith('http'):
                         continue
@@ -43,16 +40,16 @@ class Bbc:
                     link = f'{self.base_url}{link}'
                     if link in already_scraped_links:
                         continue
-
                     already_scraped_links.add(link)
-                    title = news_item.find('h3', class_='gs-c-promo-heading__title').get_text()
 
+                    title = news_item.find('h3', class_='gs-c-promo-heading__title').get_text()
                     logging.info(f'title: {title}, link: {link}')
 
-                    # Reading the content (it is divided in paragraphs)
-                    article = requests.get(f'{link}')
-                    article_content = article.content
-                    soup_article = BeautifulSoup(article_content, 'html5lib')
+                    article_response = requests.get(f'{link}')
+                    if article_response.status_code != 200:
+                        logging.error(f'Response from {name} was {article_response.status_code}')
+                        return
+                    soup_article = BeautifulSoup(article_response.content, 'html5lib')
 
                     select = soup_article.select('div[data-component="text-block"]')
                     article_body = '\n'.join(map(lambda x: x.get_text(), select))
